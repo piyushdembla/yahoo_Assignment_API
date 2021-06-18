@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yahoo Finance API</title>
+    <link crossorigin="anonymous"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css"
+          integrity="sha256-8B1OaG0zT7uYA572S2xOxWACq9NXYPQ+U5kHPV1bJN4="
+          rel="stylesheet"/>
+    <link rel="shortcut icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqeW3Zxf_25J5KIDqvrTOHYmsQhPze76VC9w&usqp=CAU"/>
+</head>
+<body>
+<nav aria-label="main navigation" class="navbar is-light" role="navigation">
+    <div class="navbar-brand">
+        <div class="navbar-item text-justify">
+            <img atl="Yahoo Finance"
+                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqeW3Zxf_25J5KIDqvrTOHYmsQhPze76VC9w&usqp=CAU"
+                 style="margin-right: 0.5em;">Yahoo Finance API
+        </div>
+    </div>
+</nav>
+<br/>
+<select name="selCountry" onchange="onDropdown(this.value)" style="margin: 10px;padding: 10px">
+    {
+    <option value="US">United States</option>
+    <option value="BR">Brazil</option>
+    <option value="AU">Australia</option>
+    <option value="CA">Canada</option>
+    <option value="FR">France</option>
+    <option value="DE">Denmark</option>
+    <option value="HK">HongKong</option>
+    <option value="IN">India</option>
+    <option value="IT">Italy</option>
+    <option value="ES">Spain</option>
+    <option value="GB">Great Britain</option>
+    <option value="SG">Singapore</option>
+</select>
+<div id="djangoLoop">
+    <table class="table is-fullwidth is-striped is-bordered">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Previous Close</th>
+            <th>Time Zone</th>
+            <th>Last Price at</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for data in yahooData %}
+        <tr>
+            <td>{{ data.fullExchangeName }}</td>
+            <td>{{ data.regularMarketPreviousClose.raw }}</td>
+            <td>{{ data.exchangeTimezoneName }}</td>
+            <td>{{ data.regularMarketTime.fmt }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+
+<script>
+function onDropdown(val){
+fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-summary?region="+val,
+{
+      headers:{
+        'x-rapidapi-key': "82fdcd2d2dmsh4dea4075607019cp1a22b1jsn1b1440de0c11",
+        'x-rapidapi-host': "apidojo-yahoo-finance-v1.p.rapidapi.com"
+      },
+  })
+.then(response => {
+   return response.json();
+  }).then(data =>{
+  var result = data['marketSummaryAndSparkResponse'];
+  result = result['result']
+
+<!--  Removing previously existing tables-->
+    var rows = document.getElementsByTagName("table");
+    for(let i=0;i<rows.length;i++){
+    rows[i].parentNode.removeChild(rows[i]);
+    }
+
+<!-- Creating JS Table-->
+  var body = document.getElementsByTagName('body')[0];
+  var tbl = document.createElement('table');
+  tbl.setAttribute('class','table is-fullwidth is-striped is-bordered')
+  var tbdy = document.createElement('tbody');
+  let thead = tbl.createTHead();
+  let row = thead.insertRow();
+<!--  Table header names-->
+  data = ["Name","Previous Close","Time Zone", "Last Price"]
+  for (let a of data) {
+    let th = document.createElement("th");
+    let text = document.createTextNode(a);
+    th.appendChild(text);
+    row.appendChild(th);
+  }
+    tbdy.appendChild(row);
+    dataToDisplay = ["fullExchangeName","regularMarketPreviousClose","exchangeTimezoneName","regularMarketTime"]
+<!--    Loop to add dynamic data to the table rows-->
+    for(let i=0; i< result.length; i++){
+    var tr = document.createElement('tr')
+    for(let a of dataToDisplay){
+    var td = document.createElement('td');
+    if(a=='regularMarketPreviousClose')
+    {
+    let res = result[i][a];
+    res = res['raw'];
+    td.appendChild(document.createTextNode(res))
+     tr.appendChild(td)
+    }
+    else if ( a=='regularMarketTime'){
+    let res = result[i][a];
+    res = res['fmt'];
+    td.appendChild(document.createTextNode(res))
+     tr.appendChild(td)
+    }
+    else{
+     td.appendChild(document.createTextNode(result[i][a]))
+     tr.appendChild(td)
+     }}
+     tbdy.appendChild(tr)
+  }
+  tbl.appendChild(tbdy);
+  body.appendChild(tbl);
+  })
+}
+</script>
