@@ -6,6 +6,7 @@ A clean, easy and fast way to get all the summary reports from the Yahoo Finance
 ```bash
 > git clone https://github.com/piyushdembla/yahoo_Assignment_API.git
 > cd yahoo_Assignment_API
+> pip install -r requirements.txt
 > python manage.py runserver
 ```
 
