@@ -14,4 +14,3 @@ requests==2.25.1
 sqlparse==0.4.1
 toml==0.10.2
 urllib3==1.26.5
--e git+https://github.com/piyushdembla/yahoo_Assignment_API.git@5e9a8a5702030cfa5cca3943662ce5cd680e4edb#egg=yahoo_finance_api
